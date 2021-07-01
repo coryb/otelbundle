@@ -11,9 +11,31 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
+type clientTraceTransport struct {
+	transport http.RoundTripper
+}
+
+var _ http.RoundTripper = (*clientTraceTransport)(nil)
+
+func (t *clientTraceTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	return t.transport.RoundTrip(RequestWithClientTrace(req))
+}
+
+// Transport creates an http transport that will automatically trace
+// all requests if there is an OpenTelemetry trace.Span previously registered
+// in the request Context.
+func Transport(rt http.RoundTripper) http.RoundTripper {
+	if rt == nil {
+		rt = http.DefaultTransport
+	}
+	return &clientTraceTransport{
+		transport: rt,
+	}
+}
+
 // RequestWithClientTrace adds httptrace.ClientTrace instrumentation into the
-// request if there is an opentelemetry trace.Span previously registered in the
-// request Context.  This is modeled after the zipkin transport tracing:
+// request if there is an OpenTelemetry trace.Span previously registered in the
+// request Context.  This is modeled after the Zipkin transport tracing:
 // https://github.com/openzipkin/zipkin-go/blob/v0.2.5/middleware/http/transport.go#L165
 func RequestWithClientTrace(req *http.Request) *http.Request {
 	ctx := req.Context()

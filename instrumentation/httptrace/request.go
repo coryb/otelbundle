@@ -1,4 +1,4 @@
-package otelhttptrace
+package httptrace
 
 import (
 	"crypto/tls"

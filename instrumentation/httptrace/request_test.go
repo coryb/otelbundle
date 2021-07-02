@@ -1,17 +1,17 @@
-package otelhttptrace_test
+package httptrace_test
 
 import (
 	"fmt"
 	"net/http"
 
-	"github.com/coryb/otelhttptrace"
+	"github.com/coryb/otelbundle/instrumentation/httptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 func ExampleTransport() {
 	client := &http.Client{
 		Transport: otelhttp.NewTransport(
-			otelhttptrace.Transport(http.DefaultTransport),
+			httptrace.Transport(http.DefaultTransport),
 			otelhttp.WithSpanNameFormatter(func(_ string, req *http.Request) string {
 				return fmt.Sprintf("%s %s", req.Method, req.URL.Path)
 			}),

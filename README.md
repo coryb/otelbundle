@@ -1,13 +1,14 @@
-[![Go Reference](https://pkg.go.dev/badge/github.com/coryb/otelhttptrace.svg)](https://pkg.go.dev/github.com/coryb/otelhttptrace)
+## OpenTelemetry utility bundle
 
-This is a Go [http-tracing](https://blog.golang.org/http-tracing) library that will annotate OpenTelemetry spans.
+This repo is for a few utilities that I felt were missing from current Go offerings from the [OpenTelemetry project](https://github.com/open-telemetry?language=go)
 
-You may want to use the official http-tracing support instead:
-go.opentelemetry.io/contrib/instrumentation/net/http/httptrace
+### Instrumentation
 
-This package differs from the official tracing solution in that it just adds 
-"event" annotations to the span rather than creating many sub-spans as the official one does.
+#### httptrace [![Go Reference](https://pkg.go.dev/badge/github.com/coryb/otelbundle/instrumentation/httptrace.svg)](https://pkg.go.dev/github.com/coryb/otelbundle/instrumentation/httptrace)
+This package adds events to existing spans to collect low-level http trace details.
 
-I found dealing with the sub-spans harder to follow when debugging processes with many
-http calls.  This approach is similar to how the Zipkin tracing collects http trace data
-when tracing is enabled [via the http.Transport](https://pkg.go.dev/github.com/openzipkin/zipkin-go@v0.2.5/middleware/http#TransportTraces).
+### Propagation
+
+#### env [![Go Reference](https://pkg.go.dev/badge/github.com/coryb/otelbundle/propagation/env.svg)](https://pkg.go.dev/github.com/coryb/otelbundle/propagation/env)
+
+This package allows you to pass remote span context through environment variables for multiprocess tracing.

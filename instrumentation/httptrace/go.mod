@@ -1,4 +1,4 @@
-module github.com/coryb/otelhttptrace
+module github.com/coryb/otelbundle/instrumentation/httptrace
 
 go 1.16
 

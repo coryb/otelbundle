@@ -145,7 +145,6 @@ func ExampleInject() {
 	cmd.Stdout = os.Stdout
 	cmd.Env = env.Inject(ctx, []string{"PATH=/usr/bin:/bin"})
 	cmd.Run()
-
 	// Output:
 	// PATH=/usr/bin:/bin
 	// TRACESTATE=
@@ -166,7 +165,6 @@ func ExampleContextWithRemoteSpanContext() {
 	fmt.Printf("TraceID: %s\n", span.SpanContext().TraceID().String())
 	fmt.Printf("SpanID: %s\n", span.SpanContext().SpanID().String())
 	fmt.Printf("Is Sampled: %t\n", span.SpanContext().IsSampled())
-
 	// Output:
 	// TraceID: 60d19e9e9abf2197c1d6d8f93e28ee2a
 	// SpanID: a028bd951229a46f
@@ -183,7 +181,6 @@ func ExampleInject_b3() {
 	cmd.Stdout = os.Stdout
 	cmd.Env = env.Inject(ctx, []string{"PATH=/usr/bin:/bin"})
 	cmd.Run()
-
 	// Output:
 	// PATH=/usr/bin:/bin
 	// X_B3_TRACEID=60d19e9e9abf2197c1d6d8f93e28ee2a
@@ -206,7 +203,6 @@ func ExampleContextWithRemoteSpanContext_b3() {
 	fmt.Printf("TraceID: %s\n", span.SpanContext().TraceID().String())
 	fmt.Printf("SpanID: %s\n", span.SpanContext().SpanID().String())
 	fmt.Printf("Is Sampled: %t\n", span.SpanContext().IsSampled())
-
 	// Output:
 	// TraceID: 60d19e9e9abf2197c1d6d8f93e28ee2a
 	// SpanID: a028bd951229a46f

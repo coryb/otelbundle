@@ -92,3 +92,50 @@ func HTTPStatusNormal(status int) Filter {
 		return span
 	}
 }
+
+type errorNormal struct {
+	sdktrace.ReadOnlySpan
+	msg string
+}
+
+func (s errorNormal) Status() sdktrace.Status {
+	return sdktrace.Status{
+		Code: codes.Ok,
+	}
+}
+
+func (s errorNormal) Attributes() []attribute.KeyValue {
+	return append(s.ReadOnlySpan.Attributes(), attribute.String("message", s.msg))
+}
+
+// ErrorNormal is for matching an error span and upgrading it to OK where
+// the msg matches the Status.Description and all provides attrs
+// are found on the span.
+func ErrorNormal(msg string, attrs ...attribute.KeyValue) Filter {
+	return func(span sdktrace.ReadOnlySpan) sdktrace.ReadOnlySpan {
+		if span == nil {
+			return nil
+		}
+		status := span.Status()
+		if status.Code == codes.Error && status.Description == msg {
+			for _, requiredAttr := range attrs {
+				found := false
+				for _, attr := range span.Attributes() {
+					if requiredAttr.Key == attr.Key {
+						if requiredAttr.Value == attr.Value {
+							found = true
+						}
+						break
+					}
+				}
+				if !found {
+					return span
+				}
+			}
+			// we made it here so we have a matching description and all have
+			// found all attributes
+			return errorNormal{ReadOnlySpan: span, msg: status.Description}
+		}
+		return span
+	}
+}

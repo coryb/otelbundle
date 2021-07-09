@@ -10,6 +10,24 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
+type filterExporter struct {
+	sdktrace.SpanExporter
+	filters []Filter
+}
+
+func (e *filterExporter) ExportSpans(ctx context.Context, spans []sdktrace.ReadOnlySpan) error {
+	return e.SpanExporter.ExportSpans(ctx, Spans(spans, e.filters...))
+}
+
+// Exporter wraps the provided exporter and applies the filters to the spans
+// sent to the exporter's ExportSpans function.
+func Exporter(exporter sdktrace.SpanExporter, filters ...Filter) sdktrace.SpanExporter {
+	return &filterExporter{
+		SpanExporter: exporter,
+		filters:      filters,
+	}
+}
+
 // Filter is a filter function that will be applied to each span via
 // Spans.  If the span argument is nil then the Filter must return nil and
 // this span will be removed from the list returned from Spans.

@@ -22,7 +22,7 @@ func Spans(spans []sdktrace.ReadOnlySpan, filters ...Filter) []sdktrace.ReadOnly
 		return spans
 	}
 
-	filtered := make([]sdktrace.ReadOnlySpan, len(spans), 0)
+	filtered := make([]sdktrace.ReadOnlySpan, 0, len(spans))
 	for _, span := range spans {
 		for _, f := range filters {
 			span = f(span)

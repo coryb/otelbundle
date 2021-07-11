@@ -40,7 +40,7 @@ func Transport(rt http.RoundTripper) http.RoundTripper {
 func RequestWithClientTrace(req *http.Request) *http.Request {
 	ctx := req.Context()
 	s := trace.SpanFromContext(ctx)
-	if s == nil {
+	if !s.SpanContext().IsValid() && s.IsRecording() {
 		return req
 	}
 

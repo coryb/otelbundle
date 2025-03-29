@@ -51,11 +51,10 @@ func TestInject(t *testing.T) {
 	got := env.Inject(ctx, input)
 	require.Equal(t, []string{
 		"PATH=/usr/bin:/bin",
-		"TRACESTATE=",
 		"TRACEPARENT=00-60d19e9e9abf2197c1d6d8f93e28ee2a-a028bd951229a46f-01",
 	}, got)
 
-	otel.SetTextMapPropagator(b3.B3{InjectEncoding: b3.B3MultipleHeader})
+	otel.SetTextMapPropagator(b3.New(b3.WithInjectEncoding(b3.B3MultipleHeader)))
 	got = env.Inject(ctx, input)
 	require.Equal(t, []string{
 		"PATH=/usr/bin:/bin",
@@ -66,7 +65,7 @@ func TestInject(t *testing.T) {
 
 	otel.SetTextMapPropagator(
 		propagation.NewCompositeTextMapPropagator(
-			b3.B3{InjectEncoding: b3.B3MultipleHeader},
+			b3.New(b3.WithInjectEncoding(b3.B3MultipleHeader)),
 			propagation.TraceContext{},
 		),
 	)
@@ -76,14 +75,12 @@ func TestInject(t *testing.T) {
 		"X_B3_TRACEID=60d19e9e9abf2197c1d6d8f93e28ee2a",
 		"X_B3_SPANID=a028bd951229a46f",
 		"X_B3_SAMPLED=1",
-		"TRACESTATE=",
 		"TRACEPARENT=00-60d19e9e9abf2197c1d6d8f93e28ee2a-a028bd951229a46f-01",
 	}, got)
 
 	// verify we update rather than append
 	input = []string{
 		"PATH=/usr/bin:/bin",
-		"TRACESTATE=origTraceState",
 		"TRACEPARENT=origTraceParent",
 		"X_B3_TRACEID=origTraceID",
 		"X_B3_SPANID=origSpanID",
@@ -95,7 +92,6 @@ func TestInject(t *testing.T) {
 	got = env.Inject(ctx, input)
 	require.Equal(t, []string{
 		"PATH=/usr/bin:/bin",
-		"TRACESTATE=",
 		"TRACEPARENT=00-60d19e9e9abf2197c1d6d8f93e28ee2a-a028bd951229a46f-01",
 		// these left unchanged since we are not using b3 propagator
 		"X_B3_TRACEID=origTraceID",
@@ -104,12 +100,11 @@ func TestInject(t *testing.T) {
 		"TERM=xterm",
 	}, got)
 
-	otel.SetTextMapPropagator(b3.B3{InjectEncoding: b3.B3MultipleHeader})
+	otel.SetTextMapPropagator(b3.New(b3.WithInjectEncoding(b3.B3MultipleHeader)))
 	got = env.Inject(ctx, input)
 	require.Equal(t, []string{
 		"PATH=/usr/bin:/bin",
 		// these left unchanged since we are not using trace context propagator
-		"TRACESTATE=origTraceState",
 		"TRACEPARENT=origTraceParent",
 		"X_B3_TRACEID=60d19e9e9abf2197c1d6d8f93e28ee2a",
 		"X_B3_SPANID=a028bd951229a46f",
@@ -119,14 +114,13 @@ func TestInject(t *testing.T) {
 
 	otel.SetTextMapPropagator(
 		propagation.NewCompositeTextMapPropagator(
-			b3.B3{InjectEncoding: b3.B3MultipleHeader},
+			b3.New(b3.WithInjectEncoding(b3.B3MultipleHeader)),
 			propagation.TraceContext{},
 		),
 	)
 	got = env.Inject(ctx, input)
 	require.Equal(t, []string{
 		"PATH=/usr/bin:/bin",
-		"TRACESTATE=",
 		"TRACEPARENT=00-60d19e9e9abf2197c1d6d8f93e28ee2a-a028bd951229a46f-01",
 		"X_B3_TRACEID=60d19e9e9abf2197c1d6d8f93e28ee2a",
 		"X_B3_SPANID=a028bd951229a46f",
@@ -147,7 +141,6 @@ func ExampleInject() {
 	cmd.Run()
 	// Output:
 	// PATH=/usr/bin:/bin
-	// TRACESTATE=
 	// TRACEPARENT=00-60d19e9e9abf2197c1d6d8f93e28ee2a-a028bd951229a46f-01
 }
 
@@ -155,7 +148,6 @@ func ExampleContextWithRemoteSpanContext() {
 	otel.SetTextMapPropagator(propagation.TraceContext{})
 
 	// these would normally be imported from environment
-	os.Setenv("TRACESTATE", "")
 	os.Setenv("TRACEPARENT", "00-60d19e9e9abf2197c1d6d8f93e28ee2a-a028bd951229a46f-01")
 
 	// extract span context from environ
@@ -172,7 +164,7 @@ func ExampleContextWithRemoteSpanContext() {
 }
 
 func ExampleInject_b3() {
-	otel.SetTextMapPropagator(b3.B3{InjectEncoding: b3.B3MultipleHeader})
+	otel.SetTextMapPropagator(b3.New(b3.WithInjectEncoding(b3.B3MultipleHeader)))
 	tracer := otel.Tracer("example")
 	ctx, span := tracer.Start(context.Background(), "testing")
 	defer span.End()
@@ -189,7 +181,7 @@ func ExampleInject_b3() {
 }
 
 func ExampleContextWithRemoteSpanContext_b3() {
-	otel.SetTextMapPropagator(b3.B3{InjectEncoding: b3.B3MultipleHeader})
+	otel.SetTextMapPropagator(b3.New(b3.WithInjectEncoding(b3.B3MultipleHeader)))
 
 	// these would normally be imported from environment
 	os.Setenv("X_B3_TRACEID", "60d19e9e9abf2197c1d6d8f93e28ee2a")
